@@ -4,7 +4,13 @@ require 'json'
 
 post '/' do
   push = JSON.parse(params[:payload])
-  message = "[#{push['status']}] #{push['title']} <a href='#{push['commit_url']}' target='_black'>#{push['message']}</a> <a href='#{push['compare_url']}' target='_blank'>Compare</a>"
+  case push['status']
+  when 'pass'
+    status_message = "<span class='label label-sucess>#{status.upcase}</span>"
+  when 'fail'
+    status_message = "<span class='label label-important>#{status.upcase}</span>"
+  end
+  message = "#{status_message} #{push['message']} by @#{push['committer']} <a href='#{push['commit_url']}' target='_black'>Commit</a> <a href='#{push['build_url']}' target='_blank'>Build</a>"
   Idobata.hook_url = ENV['IDOBATA_HOOK_URL']
   Idobata::Message.create(source: message, format: :html)
 end
